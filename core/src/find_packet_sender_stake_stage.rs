@@ -167,6 +167,7 @@ impl FindPacketSenderStakeStage {
     }
 
     fn apply_sender_stakes(batches: &mut [PacketBatch], ip_to_stake: &HashMap<IpAddr, u64>) {
+<<<<<<< HEAD
         PAR_THREAD_POOL.with(|thread_pool| {
             thread_pool.borrow().install(|| {
                 batches
@@ -177,6 +178,18 @@ impl FindPacketSenderStakeStage {
                             *ip_to_stake.get(&packet.meta.addr().ip()).unwrap_or(&0);
                     });
             })
+=======
+        PAR_THREAD_POOL.install(|| {
+            batches
+                .into_par_iter()
+                .flat_map(|batch| batch.packets.par_iter_mut())
+                .for_each(|packet| {
+                    packet.meta.sender_stake = ip_to_stake
+                        .get(&packet.meta.addr)
+                        .copied()
+                        .unwrap_or_default();
+                });
+>>>>>>> c248fb3f5 (renames Packet Meta::{,set_}addr methods to {,set_}socket_addr (#25478))
         });
     }
 
